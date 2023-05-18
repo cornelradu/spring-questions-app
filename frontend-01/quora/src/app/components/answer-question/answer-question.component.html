@@ -1,0 +1,30 @@
+
+<div class="main-content">
+    <div class ="section-content section-content-p30">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="jumbotron">
+                    <h1> {{question.text}}</h1>
+                    
+                    <form [formGroup]="answerFormGroup" (ngSubmit)="onSubmit()" >
+                        <div formGroupName="user" class="form-area" >
+            
+                            <div class="row">
+                                <div class="col-md-2"> <label>Answer</label></div>
+                                <div class="col-md-9">
+                                    <div class="input-space">
+                                        <textarea formControlName="answer"></textarea>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-info">Post</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  
