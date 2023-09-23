@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     private final AuthenticationManager authenticationManager;
+
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
                 .name(request.getName())
@@ -29,7 +31,13 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
-        repository.save(user);
+        try {
+            repository.save(user);
+        } catch(Exception e){
+            return AuthenticationResponse.builder()
+                    .errorMessage("The name you provided already exists in the database.")
+                    .build();
+        }
         var jwtToken = jwtService.generateToken(new HashMap<String, Object>(), user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)

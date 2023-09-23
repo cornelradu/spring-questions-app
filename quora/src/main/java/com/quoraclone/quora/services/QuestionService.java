@@ -15,9 +15,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class QuestionService {
@@ -28,6 +34,8 @@ public class QuestionService {
 
     private final VoteRepository voteRepository;
 
+    private HashMap<String, String> map = new HashMap<>();
+
     @Autowired
     QuestionService(QuestionRepository repository, AuthenticationManager authenticationManager,
                     AnswerRepository answerRepository, VoteRepository voteRepository) {
@@ -35,6 +43,60 @@ public class QuestionService {
         this.authenticationManager = authenticationManager;
         this.answerRepository = answerRepository;
         this.voteRepository = voteRepository;
+    }
+
+    public String sendPost(String urlVar){
+        String result = "";
+        try {
+            // Specify the URL you want to send the POST request to
+            URL url = new URL("http://localhost:8081/api/url/shorten");
+
+            // Open a connection to the URL
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            // Set the request method to POST
+            connection.setRequestMethod("POST");
+
+            // Enable input and output streams for sending data
+            connection.setDoOutput(true);
+
+            // Set the content type and content length (if applicable)
+            connection.setRequestProperty("Content-Type", "application/json");
+            String jsonPayload = "{\"originalURL\":\"" + urlVar + "\"}";
+
+
+            connection.setRequestProperty("Content-Length", String.valueOf(jsonPayload.length()));
+
+            // Replace 'data' with your JSON data as a string
+
+            // Get the output stream to send the data
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonPayload.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            // Get the HTTP response code
+            int responseCode = connection.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // Request was successful, read and handle the response
+                // You can use connection.getInputStream() to read the response data
+                byte[] output = connection.getInputStream().readAllBytes();
+                String text = new String(output, "UTF-8");
+                System.out.println(text);
+                result = text;
+            } else {
+                // Handle the error (e.g., log, throw exception, etc.)
+                System.err.println("HTTP error code: " + responseCode);
+            }
+
+            // Close the connection
+            connection.disconnect();
+        } catch (Exception e) {
+            // Handle exceptions (e.g., IOException, MalformedURLException, etc.)
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public CreateQuestionResponse createQuestion(CreateQuestionRequest request) {
@@ -73,6 +135,8 @@ public class QuestionService {
             questions = repository.findAllByUserIdAndKeyword(principal.getId(), keyword);
         else
             questions = repository.findAllBydKeyword(keyword);
+
+
         return  findQuestions(questions);
     }
 
@@ -96,8 +160,30 @@ public class QuestionService {
             for(Answer answer : answers){
                 answerList.add(new AnswerDto(answer.getId(), answer.getText(), answer.getUser().getName()));
             }
+
+            String text = question.getText();
+            String regex = "\\b(?:https?|ftp):\\/\\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]";
+            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+
+            // Create a Matcher object
+            Matcher matcher = pattern.matcher(text);
+
+            // Find and print URLs
+            while (matcher.find()) {
+                String url = matcher.group();
+                System.out.println("Found URL: " + url);
+                String result = "";
+                if (map.containsKey(url)){
+                    result = map.get(url);
+                } else {
+                    result = this.sendPost(url);
+                    map.put(url, result);
+                }
+                text = text.replace(url, "<a href=\"http://localhost:8081/api/url/" + result + "\">http://localhost:8081/api/url/" + result + "</a>");
+            }
+
             questionDtoArrayList.add(new QuestionDto(question.getId(),
-                    question.getText(),
+                    text,
                     question.getUser().getId(),
                     question.getUser().getUsername(),answerList, sum));
         }
@@ -123,8 +209,30 @@ public class QuestionService {
                 for(Answer answer : answers){
                     answersList.add(new AnswerDto(answer.getId(), answer.getText(), answer.getUser().getName()));
                 }
+
+                String text = q.getText();
+                String regex = "\\b(?:https?|ftp):\\/\\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]";
+                Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+
+                // Create a Matcher object
+                Matcher matcher = pattern.matcher(text);
+
+                // Find and print URLs
+                while (matcher.find()) {
+                    String url = matcher.group();
+                    System.out.println("Found URL: " + url);
+                    String result = "";
+                    if (map.containsKey(url)){
+                        result = map.get(url);
+                    } else {
+                        result = this.sendPost(url);
+                        map.put(url, result);
+                    }
+                    text = text.replace(url, "<a href=\"http://localhost:8081/api/url/" + result + "\">http://localhost:8081/api/url/" + result + "</a>");
+                }
+
                 return new QuestionDto(q.getId(),
-                        q.getText(),
+                        text,
                         q.getUser().getId(),
                         q.getUser().getUsername(), answersList,sum);
             }

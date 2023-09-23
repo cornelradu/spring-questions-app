@@ -53,7 +53,7 @@ public class QuestionController {
             @RequestBody PostAnswerRequest request, @PathVariable Long id
     ){
         PostAnswerResponseDto res = this.service.answerQuestion(id, request);
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok().build();
     }
 
     @CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600)
@@ -62,7 +62,7 @@ public class QuestionController {
              @PathVariable Long id
     ){
         DeleteAnswerDto res = this.service.deleteAnswer(id);
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok().build();
     }
 
     @CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600)
@@ -71,7 +71,7 @@ public class QuestionController {
             @PathVariable Long id
     ){
         this.service.deleteQuestion(id);
-        return ResponseEntity.ok(new GeneralAnswerDto("success"));
+        return ResponseEntity.ok().build();
     }
 
     @CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600)
@@ -80,7 +80,7 @@ public class QuestionController {
             @RequestBody VoteRequestDto request, @PathVariable Long id
     ){
         this.service.voteQuestion(id, request);
-        return ResponseEntity.ok(new GeneralAnswerDto("success"));
+        return ResponseEntity.ok().build();
     }
 
 }

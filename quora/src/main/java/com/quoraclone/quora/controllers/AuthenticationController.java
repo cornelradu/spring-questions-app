@@ -26,6 +26,11 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request
     ){
-        return ResponseEntity.ok(service.authenticate(request));
+        AuthenticationResponse response = service.authenticate(request);
+        if(response.getErrorMessage() == null || response.getErrorMessage().equals("")) {
+            return ResponseEntity.ok(response);
+        } else{
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

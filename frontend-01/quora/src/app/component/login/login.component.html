@@ -1,34 +1,95 @@
+<style>
+    .login-container {
+    background-color: #fff; /* White container background color */
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+h2 {
+    color: #333; /* Dark gray text color */
+}
+
+.form-group {
+    margin: 20px 0;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    color: #555; /* Medium gray text color */
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 3px;
+    font-size: 16px;
+    color: #333; /* Dark gray text color */
+}
+
+button {
+    background-color: #555; /* Medium gray button background color */
+    color: #fff; /* White button text color */
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #444; /* Slightly darker gray on hover */
+}
+
+.register-link {
+    margin-top: 20px;
+    color: #555; /* Medium gray text color */
+}
+
+a {
+    color: #333; /* Dark gray link color */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+</style>
+
+
+
+
 <div class="main-content page-m ">
+    
     <div class="section-content">
         <div class="container-fluid">
-            <form [formGroup]="loginFormGroup" (ngSubmit)="onSubmit()" >
-            <div formGroupName="user" class="form-area" >
-                <h3> User login</h3>
-
-                <div class="row">
-                    <div class="col-md-2"> <label>Name</label></div>
-                    <div class="col-md-9">
-                        <div class="input-space">
-                            <input formControlName="name" type="text">
+            <div class="login-container" style="margin-top: 200px">
+                <h2>Login</h2>
+                <form [formGroup]="loginFormGroup" (ngSubmit)="onSubmit()">
+                    <div formGroupName="user">
+                        <div class="form-group" >
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" formControlName="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" formControlName="password" id="password" name="password" required>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-2"> <label>Password</label></div>
-                    <div class="col-md-9">
-                        <div class="input-space">
-                            <input formControlName="password" type="text">
-                        </div>
-                    </div>
-                </div>               
-                
+                    <button type="submit">Login</button>
+                </form>
+                <p class="register-link">Don't have an account? <a href="register">Register here</a></p>
             </div>
-            <div class="text-center">
-                <button type="submit" class="btn btn-info">Log In</button>
-            </div>
-            <a routerLink="register" routerLinkActive="active-link" >register</a>
-            </form>
         </div>
     </div>
 </div>

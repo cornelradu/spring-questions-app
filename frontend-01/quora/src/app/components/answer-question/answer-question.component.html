@@ -4,16 +4,17 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="jumbotron">
-                    <h1> {{question.text}}</h1>
+                    <h1><div [innerHTML]="question.text"></div></h1>
                     
                     <form [formGroup]="answerFormGroup" (ngSubmit)="onSubmit()" >
                         <div formGroupName="user" class="form-area" >
             
                             <div class="row">
-                                <div class="col-md-2"> <label>Answer</label></div>
+                                <div class="col-md-2"> <label>Answer question</label></div>
                                 <div class="col-md-9">
                                     <div class="input-space">
-                                        <textarea formControlName="answer"></textarea>
+                                        <textarea formControlName="answer" type="textarea" style="width:600px; height:200px"></textarea>
+
 
                                     </div>
                                 </div>

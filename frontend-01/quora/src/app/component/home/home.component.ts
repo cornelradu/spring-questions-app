@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { AuxServiceService } from 'src/app/aux-service.service';
 import { Answer, Question } from 'src/app/common/question';
+import { SearchComponent } from 'src/app/components/search/search.component';
 import { AskquestionService } from 'src/app/services/askquestion.service';
 
 @Component({
@@ -14,7 +16,7 @@ export class HomeComponent {
   questionList: Question[] = [];
   searchMode: boolean = false;
   userOnly: string = 'false';
-  constructor(private service: AskquestionService,private route: ActivatedRoute){}
+  constructor(private service: AskquestionService,private route: ActivatedRoute, private aux_service: AuxServiceService){}
   
   ngOnInit(): void {
       
@@ -27,7 +29,8 @@ export class HomeComponent {
             this.userOnly = data;
             this.listAllQuestions()
         });
-    
+      
+        this.aux_service.sendMessage("test")
   }
 
   listAllQuestions(){

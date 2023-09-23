@@ -16,25 +16,47 @@ export class AuthenticationService {
   private baseUrl = "http://localhost:8080/api/v1/auth/register"
   private loginUrl = "http://localhost:8080/api/v1/auth/authenticate"
 
-  register(name: string, email: string, password: string){
-    this.httpClient.post<GetResponse>(this.baseUrl, { name: name, email: email, password: password }).subscribe(data => {
-        this.token = data.token
+  logout(){
+    localStorage.setItem("token", '')
+    this.token = "";
+  }
 
-        console.log(this.token)
+  register(name: string, email: string, password: string, callback: () => void, error_callback: (message: string) => void){
+    this.httpClient.post<GetResponse>(this.baseUrl, { name: name, email: email, password: password }).subscribe(data => {
+        
+        if(data.errorMessage != null){
+          error_callback(data.errorMessage)
+        } else {
+          this.token = data.token
+          console.log(data)
+          callback()
+          localStorage.setItem('token', this.token)
+        }
+    },
+    (error) => {
+        var message = "Cannot register with that username."
+        error_callback(message)
     })
   }
 
-  login(name: string, password: string,  callback: () => void){
+  login(name: string, password: string,  callback: () => void, error_callback: (message: string) => void ){
     this.httpClient.post<GetResponse>(this.loginUrl, { name: name, password: password }).subscribe(data => {
+        
         this.token = data.token
+        
         callback();
         console.log(this.token)
         localStorage.setItem('token', this.token)
+    },
+    (error) => {
+      var message = "Cannot login username and password are not in database."
+      error_callback(message)
     })
   }
 }
 
 interface GetResponse {
   token : string;
+  errorMessage: string;
 }
 

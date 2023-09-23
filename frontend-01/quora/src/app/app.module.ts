@@ -12,6 +12,9 @@ import { LoginComponent } from './component/login/login.component';
 import { AskQuestionComponent } from './components/ask-question/ask-question.component';
 import { AnswerQuestionComponent } from './components/answer-question/answer-question.component';
 import { SearchComponent } from './components/search/search.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
@@ -31,6 +34,7 @@ const routes: Routes = [
     AskQuestionComponent,
     AnswerQuestionComponent,
     SearchComponent,
+    InfoDialogComponent,
   ],
   imports: [
     RouterModule,
@@ -38,7 +42,9 @@ const routes: Routes = [
     BrowserModule,
     NgbModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    MatDialogModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
