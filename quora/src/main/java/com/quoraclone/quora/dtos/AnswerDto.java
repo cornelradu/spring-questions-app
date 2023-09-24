@@ -11,4 +11,5 @@ public class AnswerDto {
     Long id;
     String text;
     String username;
+    boolean owner;
 }

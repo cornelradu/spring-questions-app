@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -27,4 +30,13 @@ public class Question {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "question")
     private Set<Answer> answers;
 
+    // Created timestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    private Date created;
+
+    // Last modified timestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @LastModifiedDate
+    private Date last_updated;
 }

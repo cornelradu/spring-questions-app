@@ -3,12 +3,14 @@ package com.quoraclone.quora.services;
 import com.quoraclone.quora.controllers.*;
 import com.quoraclone.quora.dao.AnswerRepository;
 import com.quoraclone.quora.dao.QuestionRepository;
+import com.quoraclone.quora.dao.UserRepository;
 import com.quoraclone.quora.dao.VoteRepository;
 import com.quoraclone.quora.dtos.*;
 import com.quoraclone.quora.entity.Answer;
 import com.quoraclone.quora.entity.Question;
 import com.quoraclone.quora.entity.User;
 import com.quoraclone.quora.entity.Vote;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,10 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,15 +33,19 @@ public class QuestionService {
 
     private final VoteRepository voteRepository;
 
+    private final UserRepository userRepository;
+
+
     private HashMap<String, String> map = new HashMap<>();
 
     @Autowired
     QuestionService(QuestionRepository repository, AuthenticationManager authenticationManager,
-                    AnswerRepository answerRepository, VoteRepository voteRepository) {
+                    AnswerRepository answerRepository, VoteRepository voteRepository, UserRepository userRepository) {
         this.repository = repository;
         this.authenticationManager = authenticationManager;
         this.answerRepository = answerRepository;
         this.voteRepository = voteRepository;
+        this.userRepository = userRepository;
     }
 
     public String sendPost(String urlVar){
@@ -103,6 +106,8 @@ public class QuestionService {
 
         Question s = new Question();
         s.setText(request.getQuestion());
+        s.setCreated(new Date());
+        s.setLast_updated(new Date());
 
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         User principal = (User) auth.getPrincipal();
@@ -124,7 +129,7 @@ public class QuestionService {
         } else {
             questions = repository.findAll();
         }
-        return  findQuestions(questions);
+        return  findQuestions(questions, principal);
     }
 
     public List<QuestionDto> getUserQuestions(String keyword,boolean allQuestions){
@@ -137,10 +142,10 @@ public class QuestionService {
             questions = repository.findAllBydKeyword(keyword);
 
 
-        return  findQuestions(questions);
+        return  findQuestions(questions, principal);
     }
 
-    List<QuestionDto> findQuestions(List<Question> questions){
+    List<QuestionDto> findQuestions(List<Question> questions, User user){
         ArrayList<QuestionDto> questionDtoArrayList = new ArrayList<QuestionDto>();
 
         for(Question question: questions){
@@ -158,7 +163,31 @@ public class QuestionService {
                 }
             }
             for(Answer answer : answers){
-                answerList.add(new AnswerDto(answer.getId(), answer.getText(), answer.getUser().getName()));
+                boolean owner = false;
+                if ( user.getId() == answer.getUser().getId()){
+                    owner = true;
+                }
+                String text = answer.getText();
+                String regex = "\\b(?:https?|ftp):\\/\\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]";
+                Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+
+                // Create a Matcher object
+                Matcher matcher = pattern.matcher(text);
+
+                // Find and print URLs
+                while (matcher.find()) {
+                    String url = matcher.group();
+                    System.out.println("Found URL: " + url);
+                    String result = "";
+                    if (map.containsKey(url)){
+                        result = map.get(url);
+                    } else {
+                        result = this.sendPost(url);
+                        map.put(url, result);
+                    }
+                    text = text.replace(url, "<a href=\"http://localhost:8081/api/url/" + result + "\">http://localhost:8081/api/url/" + result + "</a>");
+                }
+                answerList.add(new AnswerDto(answer.getId(), text, answer.getUser().getName(), owner));
             }
 
             String text = question.getText();
@@ -182,10 +211,15 @@ public class QuestionService {
                 text = text.replace(url, "<a href=\"http://localhost:8081/api/url/" + result + "\">http://localhost:8081/api/url/" + result + "</a>");
             }
 
+            boolean owner = false;
+            if ( user.getId() == question.getUser().getId()){
+                owner = true;
+            }
+
             questionDtoArrayList.add(new QuestionDto(question.getId(),
                     text,
                     question.getUser().getId(),
-                    question.getUser().getUsername(),answerList, sum));
+                    question.getUser().getUsername(),answerList, sum, owner, question.getCreated()));
         }
         return questionDtoArrayList;
     }
@@ -207,7 +241,28 @@ public class QuestionService {
                     }
                 }
                 for(Answer answer : answers){
-                    answersList.add(new AnswerDto(answer.getId(), answer.getText(), answer.getUser().getName()));
+
+                    String text = answer.getText();
+                    String regex = "\\b(?:https?|ftp):\\/\\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]";
+                    Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+
+                    // Create a Matcher object
+                    Matcher matcher = pattern.matcher(text);
+
+                    // Find and print URLs
+                    while (matcher.find()) {
+                        String url = matcher.group();
+                        System.out.println("Found URL: " + url);
+                        String result = "";
+                        if (map.containsKey(url)){
+                            result = map.get(url);
+                        } else {
+                            result = this.sendPost(url);
+                            map.put(url, result);
+                        }
+                        text = text.replace(url, "<a href=\"http://localhost:8081/api/url/" + result + "\">http://localhost:8081/api/url/" + result + "</a>");
+                    }
+                    answersList.add(new AnswerDto(answer.getId(), text, answer.getUser().getName(), false));
                 }
 
                 String text = q.getText();
@@ -234,7 +289,7 @@ public class QuestionService {
                 return new QuestionDto(q.getId(),
                         text,
                         q.getUser().getId(),
-                        q.getUser().getUsername(), answersList,sum);
+                        q.getUser().getUsername(), answersList,sum, false, q.getCreated());
             }
         }
         return null;

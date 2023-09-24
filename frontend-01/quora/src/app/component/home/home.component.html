@@ -67,18 +67,18 @@
                         
                         <br />
                         <a class="btn btn-primary" routerLink="/answer_question/{{question.id}}" routerLinkActive="active-link" style="color:rgb(220, 219, 219); background-color: brown;">Answer <i class="fa-solid fa-pencil"></i></a>
-                        <button  (click)="deleteQuestion(question.id)" class="btn btn-primary  btn-sm float-end" style="color:rgb(220, 219, 219); background-color: brown;"><i class="fas fa-minus"></i></button>
+                        <button *ngIf="question.owner==true"  (click)="deleteQuestion(question.id)" class="btn btn-primary  btn-sm float-end" style="color:rgb(220, 219, 219); background-color: brown;"><i class="fas fa-minus"></i></button>
                      
                         <button  (click)="downvote(question.id)" class="btn btn-primary  btn-sm float-end" style="color:rgb(220, 219, 219); background-color: brown;"><i class="fa-solid fa-arrow-down"></i></button>
                         
                         <button   (click)="upvote(question.id)" class="btn btn-primary  btn-sm float-end" style="color:rgb(220, 219, 219); background-color: brown;"><i class="fa-solid fa-arrow-up"></i><span> {{ question.sumVotes}}</span></button>
-                        
+                        <p style="color:gray"> Posted at {{ question.created }} </p>
                     </div>
                     <div *ngFor="let item of question.answers; let i = index" [attr.data-index]="i" class="questionBox" >
                         <p style="color:gray"> u/{{ item.username }} </p>
-                        {{item.text}}
+                        <div [innerHTML]="item.text" > </div>
                         <br />
-                        <button (click)="deleteAnswer(i, question.answers)" class="btn btn-primary btn-sm float-end" style="color:rgb(220, 219, 219); background-color: brown;"><i class="fas fa-minus"></i></button>
+                        <button *ngIf="item.owner==true" (click)="deleteAnswer(i, question.answers)" class="btn btn-primary btn-sm float-end" style="color:rgb(220, 219, 219); background-color: brown;"><i class="fas fa-minus"></i></button>
                         <br />
                     </div>
                     

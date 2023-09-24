@@ -2,11 +2,13 @@ export class Answer{
     id: number;
     text: string;
     username: string;
+    owner: boolean;
 
     constructor(a: Answer){
         this.id = a.id;
         this.text = a.text;
         this.username = a.username;
+        this.owner = a.owner;
     }
 }
 
@@ -17,6 +19,8 @@ export class Question {
     username: String;
     answers: Answer[];
     sumVotes: number;
+    owner: boolean;
+    created: Date;
 
     constructor(q: Question){
         this.id=q.id;
@@ -26,5 +30,7 @@ export class Question {
 
         this.answers = q.answers;
         this.sumVotes = q.sumVotes;
+        this.owner = q.owner;
+        this.created = q.created;
     }
 }

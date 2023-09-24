@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AskquestionService } from 'src/app/services/askquestion.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { AuxServiceService } from 'src/app/aux-service.service';
+import { AuxServiceService } from 'src/app/services/aux-service.service';
 
 @Component({
   selector: 'app-search',

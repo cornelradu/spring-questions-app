@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AuxServiceService } from 'src/app/aux-service.service';
+import { AuxServiceService } from 'src/app/services/aux-service.service';
 import { Answer, Question } from 'src/app/common/question';
 import { SearchComponent } from 'src/app/components/search/search.component';
 import { AskquestionService } from 'src/app/services/askquestion.service';
@@ -31,6 +31,9 @@ export class HomeComponent {
         });
       
         this.aux_service.sendMessage("test")
+        this.aux_service.message2$.subscribe(data => {
+          this.listAllQuestions()
+        })
   }
 
   listAllQuestions(){

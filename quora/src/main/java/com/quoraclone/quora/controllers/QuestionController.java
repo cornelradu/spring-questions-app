@@ -1,7 +1,9 @@
 package com.quoraclone.quora.controllers;
 
 import com.quoraclone.quora.dtos.*;
+import com.quoraclone.quora.entity.User;
 import com.quoraclone.quora.services.QuestionService;
+import com.quoraclone.quora.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +17,11 @@ import java.util.List;
 public class QuestionController {
     private final QuestionService service;
 
+    private final UserService userService;
     @Autowired
-    QuestionController(QuestionService service) {
+    QuestionController(QuestionService service, UserService userService) {
         this.service = service;
+        this.userService = userService;
     }
 
     @CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600)
@@ -33,6 +37,7 @@ public class QuestionController {
     @GetMapping("/question")
     public List<QuestionDto> getUserQuestions(@RequestParam(name = "keyword", required = false) String keyword
     ,@RequestParam(name = "searchAll", required = false) String all){
+
         if(keyword == null) {
             return this.service.getUserQuestions(all == null || all.equals("false"));
         } else {
